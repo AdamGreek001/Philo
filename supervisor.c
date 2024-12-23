@@ -1,87 +1,67 @@
-#include "philosophers.h"
 
-void	*supervisor_routine(void *arg)
+
+#include "philo.h"
+
+bool check_death(t_philo *ph, t_sim *all)
 {
-	t_simulation	*sim;
-	long		i;
+	long tmp;
 
-	sim = (t_simulation *)arg;
-	if (sim->philosopher_count == 1)
+	if (get_n_eat(ph) == all->nbr_of_meals)
+		return (false);
+	pthread_mutex_lock(&ph->sim_lock);
+	tmp = get_time() - ph->last_eat;
+	pthread_mutex_unlock(&ph->sim_lock);
+	if (tmp > all->time_to_die)
+		return (true);
+	return (false);
+}
+
+bool is_all_philos_full(t_sim *all)
+{
+	long i;
+	long cnt;
+
+	i = -1;
+	cnt = 0;
+	while (++i < all->philo_count)
+	{
+		if (get_n_eat(&all->philos[i]) == all->nbr_of_meals)
+			cnt++;
+	}
+	if (cnt == all->philo_count)
+		return (true);
+	return (false);
+}
+
+int set_finish(t_sim *all, bool set)
+{
+	pthread_mutex_lock(&all->sim_lock);
+	all->finish = set;
+	pthread_mutex_unlock(&all->sim_lock);
+	return (1);
+}
+
+void *monitor(void *arg)
+{
+	t_sim *all;
+	long i;
+
+	all = (t_sim *)arg;
+	if (all->philo_count == 1)
 		return (NULL);
-	while (!is_simulation_finished(sim))
+	while (1)
 	{
 		i = -1;
-		while (++i < sim->philosopher_count)
+		while (++i < all->philo_count)
 		{
-			if (check_philosopher_death(&sim->philosophers[i]))
+			if (check_death(&all->philos[i], all) && !is_finish(all) && get_n_eat(&all->philos[i]) != all->nbr_of_meals)
 			{
-				print_status(&sim->philosophers[i], 'd');
-				mark_simulation_end(sim);
-				return (NULL);
+				print_status(&all->philos[i], 'd');
+				return (set_finish(all, true), NULL);
 			}
 		}
-		if (are_all_philosophers_satisfied(sim))
+		if (is_all_philos_full(all))
 			return (NULL);
-		precise_sleep(1);
 	}
 	return (NULL);
-}
-
-bool	check_philosopher_death(t_philosopher *philo)
-{
-	long	time_since_last_meal;
-
-	if (get_meals_eaten(philo) == philo->sim->required_meals)
-		return (false);
-	pthread_mutex_lock(&philo->meal_lock);
-	time_since_last_meal = get_current_time_ms() - philo->last_meal_time;
-	pthread_mutex_unlock(&philo->meal_lock);
-	return (time_since_last_meal > philo->sim->time_to_die);
-}
-
-bool	are_all_philosophers_satisfied(t_simulation *sim)
-{
-	long	i;
-	long	satisfied_count;
-
-	i = -1;
-	satisfied_count = 0;
-	while (++i < sim->philosopher_count)
-	{
-		if (get_meals_eaten(&sim->philosophers[i]) == sim->required_meals)
-			satisfied_count++;
-	}
-	return (satisfied_count == sim->philosopher_count);
-}
-
-void	mark_simulation_end(t_simulation *sim)
-{
-	pthread_mutex_lock(&sim->sim_lock);
-	sim->simulation_ended = true;
-	pthread_mutex_unlock(&sim->sim_lock);
-}
-
-int	start_simulation(t_simulation *sim)
-{
-	long	i;
-
-	i = -1;
-	while (++i < sim->philosopher_count)
-	{
-		if (pthread_create(&sim->philosophers[i].thread, NULL,
-				philosopher_routine, &sim->philosophers[i]) != 0)
-			return (0);
-	}
-	if (pthread_create(&sim->monitor_thread, NULL,
-			supervisor_routine, sim) != 0)
-		return (0);
-	i = -1;
-	while (++i < sim->philosopher_count)
-	{
-		if (pthread_join(sim->philosophers[i].thread, NULL) != 0)
-			return (0);
-	}
-	if (pthread_join(sim->monitor_thread, NULL) != 0)
-		return (0);
-	return (1);
 }

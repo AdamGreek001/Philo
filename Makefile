@@ -1,30 +1,36 @@
-SRC		=	simulation_init.c time_utils.c philosopher_actions.c \
-			supervisor.c input_validation.c main.c
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: eel-alao <eel-alao@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2024/12/23 22:47:53 by eel-alao          #+#    #+#              #
+#    Updated: 2024/12/23 22:47:54 by eel-alao         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
-NAME	=	philo
+CC = cc
+CFLAGS = -Wall -Werror -Wextra
+RM = rm -rf
 
-CC		=	cc
+NAME = philo
+INCLUDES = philo.h
+SRC = main.c parse_input.c philo_actions.c simulatioin_innit.c supervisor.c time_utils.c
+OBJ = $(SRC:.c=.o)
+ 
+all : $(NAME)
 
-HEADER	=	philosopher.h
+$(NAME) : $(OBJ) $(INCLUDES)
+	$(CC) $(CFLAGS) $(OBJ) -o $@
 
-CFLAGS	=	-Wall -Wextra -Werror
-
-OBJS	=	$(SRC:.c=.o)
-
-all: $(NAME)
-
-$(NAME): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
-
-%.o: %.c $(HEADER)
+%.o : %.c $(INCLUDES)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-clean:
-	$(RM) $(OBJS)
+clean :
+	$(RM) $(OBJ)
 
-fclean: clean
+fclean : clean
 	$(RM) $(NAME)
 
-re: fclean all
-
-.PHONY: clean
+re : fclean all

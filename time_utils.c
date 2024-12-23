@@ -1,58 +1,52 @@
-#include "philosophers.h"
+#include "philo.h"
 
-long	get_current_time_ms(void)
+int print_status(t_philo *ph, char msg)
 {
-	struct timeval	tv;
-	long			ms;
+   long time;
 
-	gettimeofday(&tv, NULL);
-	ms = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
-	return (ms);
+   if (is_finish(ph->all))
+      return (1);
+   pthread_mutex_lock(&ph->all->print_lock);
+   time = get_time() - ph->all->start_time;
+   if (msg == 'e' && !is_finish(ph->all))
+      printf("%ld\t %ld is eating\n", time, ph->index);
+   else if (msg == 'f' && !is_finish(ph->all))
+      printf("%ld\t %ld has taken a fork\n", time, ph->index);
+   else if (msg == 's' && !is_finish(ph->all))
+      printf("%ld\t %ld is sleeping\n", time, ph->index);
+   else if (msg == 't' && !is_finish(ph->all))
+      printf("%ld\t %ld is thinking\n", time, ph->index);
+   else if (msg == 'd' && !is_finish(ph->all))
+      printf("%ld\t %ld died\n", time, ph->index);
+   if (msg != 'd')
+      pthread_mutex_unlock(&ph->all->print_lock);
+   return (1);
 }
 
-void	precise_sleep(long milliseconds)
+void *one_philo(t_philo *ph, t_sim *all)
 {
-	long	target_time;
-
-	target_time = get_current_time_ms() + milliseconds;
-	while (get_current_time_ms() < target_time)
-		usleep(500);
+   pthread_mutex_lock(ph->right_fork);
+   print_status(ph, 'f');
+   ft_usleep(all->time_to_die, all);
+   print_status(ph, 'd');
+   pthread_mutex_unlock(ph->right_fork);
+   set_finish(all, true);
+   return (NULL);
 }
 
-long	get_elapsed_time(long start_time)
+int clear_all(t_sim *all)
 {
-	return (get_current_time_ms() - start_time);
-}
+   int i;
 
-bool	is_simulation_finished(t_simulation *sim)
-{
-	bool	result;
-
-	pthread_mutex_lock(&sim->sim_lock);
-	result = sim->simulation_ended;
-	pthread_mutex_unlock(&sim->sim_lock);
-	return (result);
-}
-
-int	print_status(t_philosopher *philo, char status)
-{
-	long	time;
-
-	if (is_simulation_finished(philo->sim))
-		return (1);
-	pthread_mutex_lock(&philo->sim->print_lock);
-	time = get_elapsed_time(philo->sim->start_time);
-	if (status == 'e' && !is_simulation_finished(philo->sim))
-		printf("%ld\t %ld is eating\n", time, philo->id);
-	else if (status == 'f' && !is_simulation_finished(philo->sim))
-		printf("%ld\t %ld has taken a fork\n", time, philo->id);
-	else if (status == 's' && !is_simulation_finished(philo->sim))
-		printf("%ld\t %ld is sleeping\n", time, philo->id);
-	else if (status == 't' && !is_simulation_finished(philo->sim))
-		printf("%ld\t %ld is thinking\n", time, philo->id);
-	else if (status == 'd' && !is_simulation_finished(philo->sim))
-		printf("%ld\t %ld died\n", time, philo->id);
-	if (status != 'd')
-		pthread_mutex_unlock(&philo->sim->print_lock);
-	return (1);
+   i = -1;
+   while (++i < all->philo_count)
+   {
+      pthread_mutex_destroy(&all->forks[i]);
+      pthread_mutex_destroy(&all->philos[i].sim_lock);
+   }
+   pthread_mutex_destroy(&all->sim_lock);
+   pthread_mutex_destroy(&all->print_lock);
+   free(all->forks);
+   free(all->philos);
+   return (1);
 }
