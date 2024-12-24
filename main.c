@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: codespace <codespace@student.42.fr>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/12/24 00:02:58 by codespace         #+#    #+#             */
+/*   Updated: 2024/12/24 00:04:28 by codespace        ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 int	main(int ac, char **av)
@@ -7,7 +19,8 @@ int	main(int ac, char **av)
 	if (ac != 5 && ac != 6)
 		return (printf("args count incorrect\n"), 1);
 	if (parse_input(ac, av, &data) == 0)
-		return (printf("Error: arguments invalid\nUsage:\n./philo number_of_philosophers"),
+		return (printf("Error: arguments invalid\nUsage:\n"),
+			printf("./philo number_of_philosophers"),
 			printf(" time_to_die time_to_eat time_to_sleep"),
 			printf(" [number_of_times_each_philosopher_must_eat]\n"), 1);
 	data.philos = malloc(sizeof(t_philo) * data.philo_count);

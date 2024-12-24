@@ -1,12 +1,23 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parse_input.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: codespace <codespace@student.42.fr>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/12/24 00:03:03 by codespace         #+#    #+#             */
+/*   Updated: 2024/12/24 00:03:08 by codespace        ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "philo.h"
 
-long ft_atoi(const char *str)
+long	ft_atoi(const char *str)
 {
-	int i;
-	long s;
-	long res;
-	long tmp;
+	int		i;
+	long	s;
+	long	res;
+	long	tmp;
 
 	(1) && (i = 0, s = 1, res = 0);
 	while ((str[i] >= 9 && str[i] <= 13) || str[i] == ' ')
@@ -26,9 +37,9 @@ long ft_atoi(const char *str)
 	return (res * s);
 }
 
-int get_arguments(char *s, long *set)
+int	get_arguments(char *s, long *set)
 {
-	int i;
+	int	i;
 
 	i = -1;
 	if (!s || !*s)
@@ -44,10 +55,10 @@ int get_arguments(char *s, long *set)
 	return (1);
 }
 
-int parse_input(int ac, char **av, t_sim *data)
+int	parse_input(int ac, char **av, t_sim *data)
 {
-	int i;
-	int check_it;
+	int	i;
+	int	check_it;
 
 	i = 0;
 	check_it = 0;

@@ -1,10 +1,20 @@
-
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   supervisor.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: codespace <codespace@student.42.fr>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/12/24 00:03:28 by codespace         #+#    #+#             */
+/*   Updated: 2024/12/24 00:03:32 by codespace        ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "philo.h"
 
-bool check_death(t_philo *ph, t_sim *all)
+bool	check_death(t_philo *ph, t_sim *all)
 {
-	long tmp;
+	long	tmp;
 
 	if (get_n_eat(ph) == all->nbr_of_meals)
 		return (false);
@@ -16,10 +26,10 @@ bool check_death(t_philo *ph, t_sim *all)
 	return (false);
 }
 
-bool is_all_philos_full(t_sim *all)
+bool	is_all_philos_full(t_sim *all)
 {
-	long i;
-	long cnt;
+	long	i;
+	long	cnt;
 
 	i = -1;
 	cnt = 0;
@@ -33,7 +43,7 @@ bool is_all_philos_full(t_sim *all)
 	return (false);
 }
 
-int set_finish(t_sim *all, bool set)
+int	set_finish(t_sim *all, bool set)
 {
 	pthread_mutex_lock(&all->sim_lock);
 	all->finish = set;
@@ -41,10 +51,10 @@ int set_finish(t_sim *all, bool set)
 	return (1);
 }
 
-void *monitor(void *arg)
+void	*monitor(void *arg)
 {
-	t_sim *all;
-	long i;
+	t_sim	*all;
+	long	i;
 
 	all = (t_sim *)arg;
 	if (all->philo_count == 1)
@@ -54,7 +64,8 @@ void *monitor(void *arg)
 		i = -1;
 		while (++i < all->philo_count)
 		{
-			if (check_death(&all->philos[i], all) && !is_finish(all) && get_n_eat(&all->philos[i]) != all->nbr_of_meals)
+			if (check_death(&all->philos[i], all) && !is_finish(all)
+				&& get_n_eat(&all->philos[i]) != all->nbr_of_meals)
 			{
 				print_status(&all->philos[i], 'd');
 				return (set_finish(all, true), NULL);

@@ -1,19 +1,30 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   simulatioin_innit.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: codespace <codespace@student.42.fr>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/12/24 00:03:20 by codespace         #+#    #+#             */
+/*   Updated: 2024/12/24 00:03:25 by codespace        ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "philo.h"
 
-long get_time(void)
+long	get_time(void)
 {
-	struct timeval t;
-	long ms;
+	struct timeval	t;
+	long			ms;
 
 	gettimeofday(&t, NULL);
 	ms = (t.tv_sec * 1000) + (t.tv_usec / 1000);
 	return (ms);
 }
 
-void ft_usleep(long msec, t_sim *sim)
+void	ft_usleep(long msec, t_sim *sim)
 {
-	long target_time;
+	long	target_time;
 
 	target_time = get_time() + msec;
 	while (get_time() < target_time)
@@ -24,7 +35,7 @@ void ft_usleep(long msec, t_sim *sim)
 	}
 }
 
-void assign_forks(t_philo *philo, pthread_mutex_t *forks, long i)
+void	assign_forks(t_philo *philo, pthread_mutex_t *forks, long i)
 {
 	philo->right_fork = &forks[i];
 	if (philo->all->philo_count > 1)
@@ -36,9 +47,9 @@ void assign_forks(t_philo *philo, pthread_mutex_t *forks, long i)
 	}
 }
 
-int innit_philos(t_sim *s)
+int	innit_philos(t_sim *s)
 {
-	int i;
+	int	i;
 
 	i = -1;
 	while (++i < s->philo_count)
@@ -48,10 +59,12 @@ int innit_philos(t_sim *s)
 		s->philos[i].last_eat = get_time();
 		s->philos[i].meals_cnt = 0;
 		assign_forks(&s->philos[i], s->forks, (long)i);
-		if (pthread_mutex_init(&s->forks[i], NULL) != 0 || pthread_mutex_init(&s->philos[i].sim_lock, NULL) != 0)
+		if (pthread_mutex_init(&s->forks[i], NULL) != 0
+			|| pthread_mutex_init(&s->philos[i].sim_lock, NULL) != 0)
 			return (0);
 	}
-	if (pthread_mutex_init(&s->sim_lock, NULL) != 0 || pthread_mutex_init(&s->print_lock, NULL) != 0)
+	if (pthread_mutex_init(&s->sim_lock, NULL) != 0
+		|| pthread_mutex_init(&s->print_lock, NULL) != 0)
 		return (0);
 	s->start_time = get_time();
 	return (1);
